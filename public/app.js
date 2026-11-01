@@ -141,6 +141,7 @@ $("#f").addEventListener("submit", function (e) {
     register(data.live || []);
     renderResult(data.result, liveNotice(data));
     $("#status").textContent = "검토를 마쳤습니다. 표시된 근거의 원문을 확인하세요.";
+    $("#out").scrollIntoView({ block: "start" });
   }).catch(function (err) {
     $("#status").textContent = err.name === "AbortError" ? "검토를 중단했습니다." : err.message === "Failed to fetch" ? "서버에 연결하지 못했습니다. 다시 시도해 주세요." : err.message;
   }).then(function () { setBusy(false); });
