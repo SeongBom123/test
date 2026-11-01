@@ -1,21 +1,12 @@
 /* 배치: 세무 검토서 서식. 왼쪽은 사실관계 입력, 오른쪽은 검토 결과. 근거는 네 종류의 색으로 구분한다. */
 :root{
-  --bg:#f3f5f6;--paper:#ffffff;--ink:#17242b;--muted:#566872;--line:#d3dbdf;--soft:#e8edef;
+  --bg:#ffffff;--paper:#ffffff;--ink:#17242b;--muted:#566872;--line:#d3dbdf;--soft:#e8edef;
   --accent:#0c5a67;--accent-fg:#ffffff;
   --law:#1f4f8f;--law-bg:#e4edf8;--rul:#6a4a12;--rul-bg:#f6edd9;--trb:#5d3c86;--trb-bg:#eee7f7;--crt:#0f6650;--crt-bg:#dff2ec;
   --warn:#9a3412;--warn-bg:#fdebe0;--good:#166534;--good-bg:#e0f3e6;--bad:#9f1f2e;--bad-bg:#fae4e6;--mid:#6b5a10;--mid-bg:#f5efcf;
   --display:"Nanum Myeongjo","Batang",serif;--body:"IBM Plex Sans KR","Malgun Gothic","Apple SD Gothic Neo",sans-serif;
+  color-scheme:light;
 }
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#12191d;--paper:#1a2429;--ink:#e6edf0;--muted:#9fb0b8;--line:#33434b;--soft:#243138;
-  --accent:#6cc4d2;--accent-fg:#0b2227;
-  --law:#a3c6f5;--law-bg:#1f3350;--rul:#e6c88a;--rul-bg:#3b2f16;--trb:#cdb4f0;--trb-bg:#352750;--crt:#8fdcc4;--crt-bg:#143c31;
-  --warn:#f8b48c;--warn-bg:#47240f;--good:#94e0ac;--good-bg:#173a24;--bad:#f5a3ac;--bad-bg:#47181f;--mid:#e6d67c;--mid-bg:#3a3410;color-scheme:dark}}
-:root[data-theme="dark"]{
-  --bg:#12191d;--paper:#1a2429;--ink:#e6edf0;--muted:#9fb0b8;--line:#33434b;--soft:#243138;
-  --accent:#6cc4d2;--accent-fg:#0b2227;
-  --law:#a3c6f5;--law-bg:#1f3350;--rul:#e6c88a;--rul-bg:#3b2f16;--trb:#cdb4f0;--trb-bg:#352750;--crt:#8fdcc4;--crt-bg:#143c31;
-  --warn:#f8b48c;--warn-bg:#47240f;--good:#94e0ac;--good-bg:#173a24;--bad:#f5a3ac;--bad-bg:#47181f;--mid:#e6d67c;--mid-bg:#3a3410;color-scheme:dark}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}body{margin:0}
 body{background:var(--bg);color:var(--ink);font:400 15px/1.7 var(--body);word-break:keep-all;overflow-wrap:anywhere}

@@ -13,7 +13,7 @@ if (existsSync(envFile)) {
   }
 }
 
-const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8" };
+const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".svg": "image/svg+xml" };
 const API = new Set(["config", "library", "review", "search"]);
 const publicDir = join(root, "public");
 
