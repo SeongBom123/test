@@ -111,16 +111,21 @@ test("관리자 코드가 틀리거나 없으면 모든 관리자 API를 막는�
   assert.equal(hashes.size, 0);
 });
 
-test("ADMIN_CODE가 없으면 관리자 API가 꺼진다", async () => {
+test("ADMIN_CODE가 없으면 기본 비밀번호를 쓰고 상태 점검에서 경고하며, 있으면 기본값을 막는다", async () => {
+  assert.equal((await call(status, { code: "1" })).status, 401);
   delete process.env.ADMIN_CODE;
-  assert.equal((await call(status, { code: "undefined" })).status, 503);
+  assert.equal((await call(status, { code: "undefined" })).status, 401);
+  const r = await call(status, { code: "1" });
+  assert.equal(r.status, 200);
+  assert.equal(r.body.checks.admin_code.state, "fail");
 });
 
 test("상태 점검: 연결 상태를 보여 주고 비밀 값은 넣지 않는다", async () => {
   const r = await call(status);
   assert.equal(r.status, 200);
-  assert.deepEqual(Object.values(r.body.checks).map((c) => c.state), ["ok", "ok", "ok", "ok"]);
+  assert.deepEqual(Object.values(r.body.checks).map((c) => c.state), ["ok", "ok", "ok", "ok", "ok"]);
   const text = JSON.stringify(r.body);
+  assert.equal(r.body.checks.admin_code.state, "ok");
   for (const secret of [TOKEN, OC, "test-key", "open-sesame", "boss"]) assert.ok(!text.includes(secret));
   assert.equal(anthropicBodies.length, 0, "상태 점검은 메시지 요금을 쓰지 않는다");
   assert.ok(redisAuthHeaders.every((h) => h === `Bearer ${TOKEN}`));

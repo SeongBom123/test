@@ -27,7 +27,7 @@ Vercel의 Project Settings → Environment Variables에 넣습니다. 키를 코
 | `ACCESS_CODE` | 예 | 사이트 접근 코드. 없으면 검토와 검색이 꺼집니다. 길고 추측하기 어려운 값을 쓰세요. |
 | `LAW_OC` | 아니요 | 법제처 OPEN API 인증값. 없으면 내장 자료실만으로 검토합니다. |
 | `CLAUDE_MODEL` | 아니요 | 기본값은 `claude-opus-5-5`입니다. |
-| `ADMIN_CODE` | 아니요 | 관리자 페이지 코드. 없으면 관리자 페이지가 꺼집니다. `ACCESS_CODE`와 다른 값을 쓰세요. |
+| `ADMIN_CODE` | 아니요 | 관리자 페이지 코드. 없으면 `lib/http.js`의 기본 비밀번호를 쓰는데, 공개 저장소에 있어 누구나 볼 수 있으므로 설정을 권장합니다. `ACCESS_CODE`와 다른 값을 쓰세요. |
 | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | 아니요 | 사용 현황과 근거 자료 수정용 저장소. 아래 설명대로 연결하면 자동으로 들어갑니다. |
 
 ## 관리자 페이지

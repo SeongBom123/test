@@ -1,7 +1,7 @@
 "use strict";
 var TYPE = { law: "세법", rul: "유권해석", trb: "심판례", crt: "판례" };
 var ORIGIN = { builtin: "내장", edited: "내장 · 수정됨", deleted: "내장 · 삭제됨", custom: "관리자 등록" };
-var CHECK_NAMES = { claude: "Claude API", law: "법제처 OPEN API", store: "저장소", access: "사이트 접근 코드" };
+var CHECK_NAMES = { claude: "Claude API", law: "법제처 OPEN API", store: "저장소", access: "사이트 접근 코드", admin_code: "관리자 비밀번호" };
 var STATE = { ok: ["유리", "정상"], off: ["유보", "꺼짐"], fail: ["불리", "문제 있음"] };
 var FIELDS = ["k", "no", "title", "date", "result", "sum", "note", "src", "url", "off"];
 var items = [];

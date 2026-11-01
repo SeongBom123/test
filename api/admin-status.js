@@ -1,4 +1,4 @@
-import { checkAdmin, send } from "../lib/http.js";
+import { adminCode, checkAdmin, send } from "../lib/http.js";
 import { LawApiError, searchKind } from "../lib/lawApi.js";
 import { Anthropic, model } from "../lib/review.js";
 import { redis, storeEnabled, StoreError } from "../lib/store.js";
@@ -49,8 +49,11 @@ export default async function handler(req, res) {
   const [claude, law, store] = await Promise.all([checkClaude(), checkLaw(), checkStore()]);
   const access = !process.env.ACCESS_CODE
     ? OFF("ACCESS_CODE가 없어 검토와 검색이 꺼져 있습니다.")
-    : process.env.ACCESS_CODE === process.env.ADMIN_CODE
+    : process.env.ACCESS_CODE === adminCode()
       ? FAIL("ACCESS_CODE와 ADMIN_CODE가 같습니다. 사용자에게 관리자 권한까지 넘어가므로 다른 값으로 바꾸세요.")
       : OK("설정됨");
-  return send(res, 200, { checks: { claude, law, store, access } });
+  const admin_code = process.env.ADMIN_CODE
+    ? OK("환경 변수 값을 사용합니다.")
+    : FAIL("소스코드의 기본 비밀번호를 사용 중입니다. 공개 저장소에서 누구나 볼 수 있으므로 ADMIN_CODE를 설정하세요.");
+  return send(res, 200, { checks: { claude, law, store, access, admin_code } });
 }
