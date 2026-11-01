@@ -7,6 +7,7 @@
 | 경로 | 역할 |
 |---|---|
 | `public/` | 화면 (HTML, CSS, JS) |
+| `public/cases.js` | 인기 사례: 자주 다투는 유형의 가상 사실관계와 관련 근거 ID. 누르면 검토 양식에 채워집니다. |
 | `api/review.js` | 사실관계 검토: 검색어 추출 → 법제처 검색 → Claude 분석 |
 | `api/search.js` | 법제처 실시간 검색 |
 | `api/library.js`, `api/config.js` | 내장 자료 목록, 기능 켜짐 상태 |

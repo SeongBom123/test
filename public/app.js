@@ -188,16 +188,52 @@ $("#sf").addEventListener("submit", function (e) {
   }).catch(function (err) { $("#sstatus").textContent = err.message; }).then(function () { $("#sb").disabled = !config.liveEnabled; });
 });
 
+var CASES = window.TAX_CASES || [];
+var caseTax = "";
+function caseCard(c) {
+  var refs = c.ids.filter(function (x) { return BY[x]; });
+  return '<article class="card case"><div><span class="stamp">' + esc(c.tax) + '</span> <span class="meta">' + esc(c.stage) + "</span></div><h3>" + esc(c.title) + "</h3><p>" + esc(c.summary) + "</p>" +
+    '<div class="lbl">주요 쟁점</div><ul>' + c.issues.map(function (t) { return "<li>" + esc(t) + "</li>"; }).join("") + "</ul>" +
+    (refs.length ? '<div class="lbl">관련 근거</div><p class="case-refs">' + refs.map(function (x) { return rich("[[" + x + "]]"); }).join(" ") + "</p>" : "") +
+    '<div class="actions"><button type="button" class="primary" data-case="' + esc(c.id) + '">이 사례로 검토하기</button></div></article>';
+}
+function renderCases() {
+  var taxes = [];
+  CASES.forEach(function (c) { if (taxes.indexOf(c.tax) < 0) taxes.push(c.tax); });
+  $("#ctags").innerHTML = [""].concat(taxes).map(function (t) { return '<button type="button" class="chip" data-ctax="' + esc(t) + '" aria-pressed="' + (caseTax === t) + '">' + esc(t || "전체 세목") + "</button>"; }).join("");
+  $("#ccards").innerHTML = CASES.filter(function (c) { return !caseTax || c.tax === caseTax; }).map(caseCard).join("");
+}
+function useCase(id) {
+  var c = CASES.filter(function (x) { return x.id === id; })[0];
+  if (!c) return;
+  var facts = c.facts || window.TAX_EXAMPLE.facts;
+  var cur = $("#facts").value.trim();
+  if (cur && cur !== facts && !confirm("입력 중인 사실관계를 이 사례로 바꿀까요?")) return;
+  $("#facts").value = facts;
+  $("#q").value = c.question || "";
+  $("#tax").value = c.tax;
+  $("#stage").value = c.stage;
+  saveDraft();
+  location.hash = "review";
+  $("#status").textContent = "인기 사례 \u201C" + c.title + "\u201D를 불러왔습니다. 내 사안에 맞게 고친 뒤 검토를 시작하세요.";
+  $("#facts").focus();
+  $("#f").scrollIntoView({ block: "start" });
+}
+$("#ctags").addEventListener("click", function (e) { var b = e.target.closest("[data-ctax]"); if (b) { caseTax = b.getAttribute("data-ctax"); renderCases(); } });
+$("#ccards").addEventListener("click", function (e) { var b = e.target.closest("[data-case]"); if (b) useCase(b.getAttribute("data-case")); });
+
+var VIEWS = ["review", "cases", "library", "sources"];
 function route() {
   var v = (location.hash || "#review").slice(1);
-  if (["review", "library", "sources"].indexOf(v) < 0) v = "review";
-  ["review", "library", "sources"].forEach(function (n) { $("#v-" + n).hidden = n !== v; });
+  if (VIEWS.indexOf(v) < 0) v = "review";
+  VIEWS.forEach(function (n) { $("#v-" + n).hidden = n !== v; });
   document.querySelectorAll("nav a").forEach(function (a) {
     if (a.getAttribute("data-v") === v) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
   });
 }
 window.addEventListener("hashchange", route);
 route();
+renderCases();
 
 var draft = null;
 try { draft = localStorage.getItem("draft"); $("#code").value = sessionStorage.getItem("code") || ""; } catch (e) {}
@@ -220,6 +256,7 @@ Promise.all([
   LIB.forEach(function (a) { a.tags.forEach(function (t) { if (TAGS.indexOf(t) < 0) TAGS.push(t); }); });
   renderResult(window.TAX_EXAMPLE.result);
   renderLib();
+  renderCases();
   $("#run").disabled = !config.reviewEnabled;
   $("#sb").disabled = !config.liveEnabled;
   $("#live-off").hidden = config.liveEnabled;

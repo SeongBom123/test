@@ -76,6 +76,7 @@ code{background:var(--soft);padding:0 5px;border-radius:3px;font-size:13px}
 .summary{margin:10px 0 0}.hint.big{font-size:13.5px}.strong{font-weight:500}b{font-weight:500}
 details.ref p{margin:4px 0 0}.meta.warn{color:var(--warn)}.chips+.meta{margin:10px 0 0}
 .t-live{background:var(--soft);color:var(--accent)}.info{margin:10px 0 0;padding:7px 10px;background:var(--soft);border-radius:4px;font-size:13.5px}.warn-box{background:var(--warn-bg);color:var(--warn)}
+.case ul{margin:0;font-size:14px}.case .lbl{margin-top:4px}.case .actions{margin-top:auto;padding-top:8px}.case-refs{line-height:2}
 .grow0{flex:0 0 auto!important}.cards:empty{display:none}#sstatus:empty{display:none}
 
 /* 관리자 페이지 */
