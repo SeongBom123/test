@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="사실관계를 세법, 유권해석, 심판례, 판례에 비추어 쟁점별로 검토합니다.">
+<title>세법 쟁점 검토실</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600&family=Nanum+Myeongjo:wght@700;800&display=swap">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div><h1>세법 쟁점 검토실</h1><p>사실관계를 세법·유권해석·심판례·판례에 비추어 쟁점별로 검토합니다.</p></div>
+  <nav aria-label="화면 선택">
+    <a href="#review" data-v="review">사실관계 검토</a>
+    <a href="#library" data-v="library">근거 자료실</a>
+    <a href="#sources" data-v="sources">원문 찾기</a>
+  </nav>
+</header>
+
+<section id="v-review">
+  <p class="notice">자료실과 법제처 실시간 검색에서 나온 근거만 확인된 근거로 표시합니다. 그 밖의 판례번호나 조문이 답변에 나오면 <span class="unv">예시</span>처럼 자동으로 표시합니다. 신고·불복 전에는 원문과 적용 시점의 법령을 확인하세요. 이 결과는 세무대리인의 의견을 대신하지 않습니다.</p>
+  <div class="grid">
+    <form class="panel" id="f">
+      <h2>사실관계</h2>
+      <label for="facts">누가, 언제, 무엇을, 어떻게 했는지 시간순으로 적어 주세요</label>
+      <textarea id="facts" maxlength="8000"></textarea>
+      <p class="hint">입력 내용은 검토를 위해 Claude API로 전송됩니다. 이름, 주민등록번호, 상호는 A, B 같은 기호로 바꿔 주세요.</p>
+      <div class="row">
+        <div><label for="tax">세목</label>
+          <select id="tax"><option>자동 판단</option><option>양도소득세</option><option>종합소득세</option><option>법인세</option><option>부가가치세</option><option>상속세·증여세</option><option>취득세 등 지방세</option></select></div>
+        <div><label for="stage">현재 단계</label>
+          <select id="stage"><option>신고 전 검토</option><option>신고 후 경정청구 검토</option><option>세무조사·과세예고 통지</option><option>고지 후 불복 검토</option><option>소송 검토</option></select></div>
+      </div>
+      <label for="q">특히 묻고 싶은 점 (선택)</label>
+      <input id="q" maxlength="500" autocomplete="off">
+      <label for="code">접근 코드</label>
+      <input id="code" type="password" autocomplete="current-password">
+      <div class="actions">
+        <button class="primary" id="run" type="submit">검토 시작</button>
+        <button id="stop" type="button" hidden>중단</button>
+        <button id="clear" type="button">입력 비우기</button>
+      </div>
+      <p class="status" id="status" role="status"></p>
+    </form>
+    <div class="panel" id="out" aria-live="polite"></div>
+  </div>
+</section>
+
+<section id="v-library" hidden>
+  <div class="panel top">
+    <h2>근거 자료실</h2>
+    <p class="meta lead">2026년 11월 1일에 각 출처 페이지를 열어 번호, 날짜, 내용을 확인한 자료입니다. 요지는 출처를 요약한 것으로 판결문의 문구 그대로가 아닙니다. 조문은 표시된 수록본 기준이며 현행과 다를 수 있습니다.</p>
+    <div class="filters">
+      <div><label for="ls">검색</label><input id="ls" placeholder="예: 정당한 사유, 명의신탁, 2002두66" autocomplete="off"></div>
+      <div><label for="lt">종류</label><select id="lt"><option value="">전체</option><option value="law">세법</option><option value="rul">유권해석</option><option value="trb">심판례</option><option value="crt">판례</option></select></div>
+    </div>
+    <div class="chips" id="tags"></div>
+    <p class="meta" id="lcount"></p>
+  </div>
+  <div class="cards" id="cards"></div>
+</section>
+
+<section id="v-sources" hidden>
+  <div class="panel top">
+    <h2>법제처 실시간 검색</h2>
+    <p id="live-off" class="hint" hidden>서버에 LAW_OC가 설정되지 않아 실시간 검색이 꺼져 있습니다.</p>
+    <form id="sf" class="filters">
+      <div><label for="sq">본문 검색어</label><input id="sq" maxlength="100" placeholder="예: 생계를 같이하는 가족 양도소득세" autocomplete="off"></div>
+      <div><label for="sk">종류</label><select id="sk"><option value="prec">판례</option><option value="decc">조세심판원 재결례</option><option value="nts">국세청 법령해석 (제목만)</option></select></div>
+      <div class="grow0"><button class="primary" id="sb" type="submit">검색</button></div>
+    </form>
+    <p class="status" id="sstatus" role="status"></p>
+  </div>
+  <div class="cards" id="scards"></div>
+  <div class="panel top">
+    <h2>원문 찾기</h2>
+    <p class="lead">자료실에 없는 쟁점은 아래 공식 시스템에서 찾습니다. 검토 결과의 "더 찾아볼 근거"에 나온 검색어를 그대로 쓰면 됩니다.</p>
+    <div class="scroll"><table>
+      <thead><tr><th>찾는 자료</th><th>공식 시스템</th><th>찾을 때 확인할 점</th></tr></thead>
+      <tbody>
+        <tr><td><span class="t t-law">세법</span></td><td><a href="https://www.law.go.kr/" target="_blank" rel="noopener">국가법령정보센터</a></td><td>거래일이나 납세의무 성립일에 시행 중이던 연혁 법령을 고릅니다. 시행령과 부칙도 함께 봅니다.</td></tr>
+        <tr><td><span class="t t-rul">유권해석</span></td><td><a href="https://taxlaw.nts.go.kr/" target="_blank" rel="noopener">국세법령정보시스템</a></td><td>질의의 사실관계가 내 사안과 같은지, 이후 해석이나 법 개정으로 바뀌지 않았는지 봅니다.</td></tr>
+        <tr><td><span class="t t-trb">심판례</span></td><td><a href="https://www.tt.go.kr/" target="_blank" rel="noopener">조세심판원</a></td><td>인용과 기각 사례를 모두 찾고, 판단의 근거가 된 증거를 내 자료와 비교합니다.</td></tr>
+        <tr><td><span class="t t-crt">판례</span></td><td><a href="https://glaw.scourt.go.kr/" target="_blank" rel="noopener">대법원 종합법률정보</a></td><td>판례 변경 여부와 심급, 확정 여부를 봅니다. 하급심은 상고심 결과까지 추적합니다.</td></tr>
+      </tbody>
+    </table></div>
+    <div class="sec">
+      <h3>근거의 무게</h3>
+      <ul>
+        <li>법률과 시행령이 출발점이고, 법원의 해석은 대법원 판례가 가장 무겁습니다.</li>
+        <li>심판례는 행정심판 단계의 판단이므로, 같은 쟁점의 대법원 판례가 있으면 그쪽을 먼저 봅니다.</li>
+        <li>유권해석은 과세관청의 견해이며 법원을 구속하지 않습니다. 다만 신고와 조사 실무에서는 큰 영향을 줍니다.</li>
+      </ul>
+    </div>
+    <div class="sec">
+      <h3>내장 자료실에 아직 없는 근거</h3>
+      <ul>
+        <li>상속세 및 증여세법 제45조, 제45조의2와 부가가치세법 제39조의 조문</li>
+        <li>각 세법의 시행령 조문 (예: 소득세법 시행령 제154조)</li>
+        <li>세금계산서 쟁점의 대법원 판례와 심판례</li>
+        <li>최근 몇 년 사이의 심판례 (내장 심판례는 1995~2017년 자료)</li>
+      </ul>
+    </div>
+  </div>
+</section>
+</div>
+<script src="/example.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>
