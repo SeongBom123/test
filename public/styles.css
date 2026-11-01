@@ -78,3 +78,24 @@ details.ref p{margin:4px 0 0}.meta.warn{color:var(--warn)}.chips+.meta{margin:10
 .t-live{background:var(--soft);color:var(--accent)}.info{margin:10px 0 0;padding:7px 10px;background:var(--soft);border-radius:4px;font-size:13.5px}.warn-box{background:var(--warn-bg);color:var(--warn)}
 .grow0{flex:0 0 auto!important}.cards:empty{display:none}#sstatus:empty{display:none}
 
+/* 관리자 페이지 */
+.adm-login{max-width:420px;margin:32px auto 0}
+.adm-section{margin-top:18px}
+#v-library{display:grid;gap:18px}
+#v-library[hidden]{display:none}
+.adm-sum{min-height:130px}
+.adm-check{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--line)}
+.adm-check .pill{flex:none}
+.adm-check p{margin:2px 0 0}
+.adm-totals{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:12px 0 16px}
+.adm-totals div{display:flex;flex-direction:column;background:var(--soft);border-radius:4px;padding:10px 12px}
+.adm-totals b{font-size:20px;font-variant-numeric:tabular-nums}
+.adm-scroll{overflow-x:auto}
+.adm-table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+.adm-table th,.adm-table td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+.adm-table th:first-child,.adm-table td:first-child{text-align:left}
+.adm-item{display:flex;flex-wrap:wrap;gap:8px 16px;justify-content:space-between;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+.adm-item>div:first-child{flex:1 1 320px;min-width:0}
+.adm-item .actions{margin-top:0}
+.adm-item .meta{margin:0}
+.adm-off{opacity:.6}

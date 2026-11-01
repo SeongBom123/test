@@ -6,7 +6,7 @@
   "description": "사실관계를 세법·유권해석·심판례·판례에 비추어 검토하는 웹사이트",
   "scripts": {
     "dev": "node scripts/dev.js",
-    "test": "node --test test/api.test.js"
+    "test": "node --test \"test/*.test.js\""
   },
   "engines": {
     "node": "24.x"

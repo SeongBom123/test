@@ -14,14 +14,14 @@ if (existsSync(envFile)) {
 }
 
 const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".svg": "image/svg+xml" };
-const API = new Set(["config", "library", "review", "search"]);
+const API = new Set(["config", "library", "review", "search", "admin-status", "admin-stats", "admin-library"]);
 const publicDir = join(root, "public");
 
 const server = createServer(async (req, res) => {
   res.status = (code) => { res.statusCode = code; return res; };
   res.json = (data) => { res.setHeader("Content-Type", "application/json; charset=utf-8"); res.end(JSON.stringify(data)); };
   const path = new URL(req.url, "http://localhost").pathname;
-  const api = path.match(/^\/api\/([a-z]+)$/);
+  const api = path.match(/^\/api\/([a-z-]+)$/);
   try {
     if (api && API.has(api[1])) {
       const chunks = [];
@@ -31,7 +31,7 @@ const server = createServer(async (req, res) => {
       const mod = await import(pathToFileURL(join(root, "api", `${api[1]}.js`)).href);
       return await mod.default(req, res);
     }
-    const file = normalize(join(publicDir, path === "/" ? "index.html" : path));
+    const file = normalize(join(publicDir, path === "/" ? "index.html" : path === "/admin" ? "admin.html" : path));
     if (!file.startsWith(publicDir + sep) || !existsSync(file)) { res.statusCode = 404; return res.end("Not found"); }
     res.setHeader("Content-Type", TYPES[extname(file)] || "application/octet-stream");
     res.end(readFileSync(file));

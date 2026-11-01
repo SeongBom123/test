@@ -10,7 +10,9 @@
 | `api/review.js` | 사실관계 검토: 검색어 추출 → 법제처 검색 → Claude 분석 |
 | `api/search.js` | 법제처 실시간 검색 |
 | `api/library.js`, `api/config.js` | 내장 자료 목록, 기능 켜짐 상태 |
+| `public/admin.html`, `api/admin-*.js` | 관리자 페이지와 API |
 | `lib/library.js` | 내용을 확인한 내장 근거 26건 |
+| `lib/authorities.js`, `lib/stats.js`, `lib/store.js` | 근거 자료 수정, 사용 통계, 저장소 클라이언트 |
 | `lib/lawApi.js` | 법제처 OPEN API 클라이언트 |
 | `lib/review.js` | Claude 호출과 프롬프트 |
 | `scripts/dev.js`, `test/` | 로컬 개발 서버, 테스트 |
@@ -25,6 +27,25 @@ Vercel의 Project Settings → Environment Variables에 넣습니다. 키를 코
 | `ACCESS_CODE` | 예 | 사이트 접근 코드. 없으면 검토와 검색이 꺼집니다. 길고 추측하기 어려운 값을 쓰세요. |
 | `LAW_OC` | 아니요 | 법제처 OPEN API 인증값. 없으면 내장 자료실만으로 검토합니다. |
 | `CLAUDE_MODEL` | 아니요 | 기본값은 `claude-opus-5-5`입니다. |
+| `ADMIN_CODE` | 아니요 | 관리자 페이지 코드. 없으면 관리자 페이지가 꺼집니다. `ACCESS_CODE`와 다른 값을 쓰세요. |
+| `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | 아니요 | 사용 현황과 근거 자료 수정용 저장소. 아래 설명대로 연결하면 자동으로 들어갑니다. |
+
+## 관리자 페이지
+
+`/admin`에서 `ADMIN_CODE`로 들어갑니다.
+
+| 메뉴 | 내용 | 저장소 |
+|---|---|---|
+| 상태 점검 | 키 설정 여부와 Claude, 법제처, 저장소 연결 확인. 토큰 요금은 나가지 않습니다. | 불필요 |
+| 사용 현황 | 최근 30일의 날짜별 검토 횟수, 실패 건수, 토큰 사용량 | 필요 |
+| 근거 자료 | 자료 추가, 수정, 삭제, 내장 자료 되돌리기 | 필요 |
+
+저장소 연결: Vercel 프로젝트의 Storage 탭에서 Marketplace의 Upstash Redis를 만들어 프로젝트에 연결하고 다시 배포합니다.
+
+- 사용 현황에는 횟수와 토큰 수만 저장합니다. 사실관계, 질문, 결과, IP는 저장하지 않습니다. 기록은 90일 뒤 지워집니다.
+- 함수가 시간 초과로 강제 종료되거나 호출 제한으로 막힌 요청은 집계되지 않습니다.
+- 근거 자료를 바꾸면 다음 검토부터 Claude에 전달됩니다. 추가한 자료는 "관리자 등록"으로 표시되며, 등록 전에 원문을 직접 확인해야 합니다.
+- 저장소 장애 때는 내장 자료만으로 검토를 계속하고 결과 화면에 알립니다. 이때 삭제한 내장 자료가 일시적으로 다시 쓰일 수 있습니다.
 
 ## 배포
 

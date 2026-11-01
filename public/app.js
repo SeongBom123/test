@@ -46,7 +46,7 @@ function srcLinks(a) {
   return '<a href="' + esc(safeUrl(a.url)) + '" target="_blank" rel="noopener">' + esc(a.src) + (a.live ? "" : "에서 보기") + "</a>" +
     (a.off ? ' · <a href="' + esc(safeUrl(a.off)) + '" target="_blank" rel="noopener">국세법령정보시스템</a>' : "");
 }
-function liveMark(a) { return a.live ? ' <span class="t t-live">실시간</span>' : ""; }
+function liveMark(a) { return a.live ? ' <span class="t t-live">실시간</span>' : a.custom ? ' <span class="t t-live">관리자 등록</span>' : ""; }
 function refBlock(a) {
   return '<details class="ref" data-ref="' + esc(a.id) + '"><summary><span class="t t-' + a.k + '">' + TYPE[a.k] + "</span>" + liveMark(a) + " " + esc(a.no) + " · " + esc(a.title) + "</summary>" +
     '<p class="meta">' + esc(a.date) + (a.result ? " · " + esc(a.result) : "") + "</p><p>" + esc(a.sum) + "</p>" +
@@ -139,7 +139,8 @@ $("#f").addEventListener("submit", function (e) {
     });
   }).then(function (data) {
     register(data.live || []);
-    renderResult(data.result, liveNotice(data));
+    var degraded = data.libraryDegraded ? '<p class="info warn-box">저장소에 연결하지 못해 관리자가 바꾼 근거 자료를 반영하지 못하고 내장 자료로 검토했습니다.</p>' : "";
+    renderResult(data.result, degraded + liveNotice(data));
     $("#status").textContent = "검토를 마쳤습니다. 표시된 근거의 원문을 확인하세요.";
     $("#out").scrollIntoView({ block: "start" });
   }).catch(function (err) {

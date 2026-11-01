@@ -1,9 +1,11 @@
 {
   "framework": null,
   "outputDirectory": "public",
+  "rewrites": [{ "source": "/admin", "destination": "/admin.html" }],
   "functions": {
     "api/review.js": { "maxDuration": 300 },
-    "api/search.js": { "maxDuration": 30 }
+    "api/search.js": { "maxDuration": 30 },
+    "api/admin-status.js": { "maxDuration": 30 }
   },
   "headers": [
     {

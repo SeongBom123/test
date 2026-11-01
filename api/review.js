@@ -1,7 +1,8 @@
-import LIBRARY from "../lib/library.js";
+import { loadLibrary } from "../lib/authorities.js";
 import { checkAccess, rateLimited, send } from "../lib/http.js";
 import { gatherAuthorities } from "../lib/lawApi.js";
 import { Anthropic, ReviewError, dropUnknownAuthorities, extractQueries, makeClient, runReview } from "../lib/review.js";
+import { recordReview } from "../lib/stats.js";
 
 const TEXT_MAX = 8000;
 const text = (value, max) => (typeof value === "string" ? value.trim().slice(0, max) : "");
@@ -30,14 +31,16 @@ export default async function handler(req, res) {
   const stage = text(body.stage, 30) || "미상";
   const question = text(body.question, 500);
 
+  const usage = { input_tokens: 0, output_tokens: 0 };
   try {
     const client = makeClient();
+    const library = await loadLibrary();
     let live = [];
     let liveStatus = "off";
     let liveErrors = [];
     if (process.env.LAW_OC) {
       try {
-        const queries = await extractQueries(client, rawFacts, tax);
+        const queries = await extractQueries(client, rawFacts, tax, usage);
         const found = queries.length ? await gatherAuthorities(queries) : { items: [], status: "ok", errors: [] };
         live = found.items;
         liveStatus = found.status;
@@ -51,12 +54,14 @@ export default async function handler(req, res) {
     }
 
     const today = new Date().toISOString().slice(0, 10);
-    const result = await runReview(client, { facts: rawFacts, tax, stage, question, live, today });
-    const known = new Set([...LIBRARY, ...live].map((a) => a.id));
-    return send(res, 200, { result: dropUnknownAuthorities(result, known), live, liveStatus, liveErrors });
+    const result = await runReview(client, { facts: rawFacts, tax, stage, question, live, today, library: library.items }, usage);
+    const known = new Set([...library.items, ...live].map((a) => a.id));
+    await recordReview({ ok: true, usage });
+    return send(res, 200, { result: dropUnknownAuthorities(result, known), live, liveStatus, liveErrors, libraryDegraded: library.degraded });
   } catch (error) {
     // 사실관계가 로그에 남지 않도록 오류 종류만 기록한다.
     console.error("review failed", error?.name, error?.status);
+    await recordReview({ ok: false, usage });
     const [status, message] = apiFailure(error);
     return send(res, status, { error: message });
   }

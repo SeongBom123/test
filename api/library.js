@@ -1,6 +1,7 @@
-import LIBRARY from "../lib/library.js";
+import { loadLibrary } from "../lib/authorities.js";
 import { send } from "../lib/http.js";
 
-export default function handler(req, res) {
-  send(res, 200, { items: LIBRARY });
+export default async function handler(req, res) {
+  const { items } = await loadLibrary();
+  send(res, 200, { items });
 }
