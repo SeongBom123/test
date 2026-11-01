@@ -30,13 +30,13 @@ Vercel의 Project Settings → Environment Variables에 넣습니다. 키를 코
 
 ### 방법 1: GitHub 연동
 
-1. 이 폴더를 GitHub 저장소에 올립니다. `node_modules`와 `.env.local`은 올리지 않습니다.
-2. [Vercel](https://vercel.com/new)에서 저장소를 가져옵니다. Framework Preset은 `Other`로 두고 빌드 설정은 바꾸지 않습니다.
+1. 이 저장소를 GitHub에 올립니다. `node_modules`와 `.env.local`은 올리지 않습니다.
+2. [Vercel](https://vercel.com/new)에서 저장소를 가져옵니다. Root Directory는 저장소 최상위(`./`)로 두고, Framework Preset은 `Other`로 두며 빌드 설정은 바꾸지 않습니다.
 3. 위 환경 변수를 넣고 Deploy를 누릅니다.
 
 ### 방법 2: Vercel CLI
 
-[Node.js 24 LTS](https://nodejs.org/)를 설치한 뒤 이 폴더에서 실행합니다.
+[Node.js 24 LTS](https://nodejs.org/)를 설치한 뒤 저장소 최상위 폴더에서 실행합니다.
 
 ```powershell
 npx vercel

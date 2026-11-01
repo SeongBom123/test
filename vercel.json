@@ -1,4 +1,6 @@
 {
+  "framework": null,
+  "outputDirectory": "public",
   "functions": {
     "api/review.js": { "maxDuration": 300 },
     "api/search.js": { "maxDuration": 30 }
