@@ -25,7 +25,7 @@ Vercel의 Project Settings → Environment Variables에 넣습니다. 키를 코
 | 이름 | 필수 | 설명 |
 |---|---|---|
 | `ANTHROPIC_API_KEY` | 예 | Claude API 키. 검토할 때마다 요금이 나갑니다. |
-| `ACCESS_CODE` | 예 | 사이트 접근 코드. 없으면 검토와 검색이 꺼집니다. 길고 추측하기 어려운 값을 쓰세요. |
+| `ACCESS_CODE` | 예 | 사이트 접근 코드. 없으면 검토와 검색이 꺼집니다. 길고 추측하기 어려운 값을 쓰세요. 사용자는 브라우저마다 처음 한 번만 입력하면 됩니다. |
 | `LAW_OC` | 아니요 | 법제처 OPEN API 인증값. 없으면 내장 자료실만으로 검토합니다. |
 | `CLAUDE_MODEL` | 아니요 | 기본값은 `claude-opus-5-5`입니다. |
 | `ADMIN_CODE` | 아니요 | 관리자 페이지 코드. 없으면 `lib/http.js`의 기본 비밀번호를 쓰는데, 공개 저장소에 있어 누구나 볼 수 있으므로 설정을 권장합니다. `ACCESS_CODE`와 다른 값을 쓰세요. |

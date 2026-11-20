@@ -107,7 +107,19 @@ document.addEventListener("click", function (e) {
 
 function codeValue() { return $("#code").value; }
 function headers() { return { "Content-Type": "application/json", "x-access-code": codeValue() }; }
-function saveCode() { try { sessionStorage.setItem("code", codeValue()); } catch (e) {} }
+/* 접근 코드는 한 번 입력하면 이 브라우저에 기억해 두고 입력칸을 숨긴다. 코드가 틀리면 지우고 다시 보여 준다. */
+function saveCode() { try { localStorage.setItem("code", codeValue()); } catch (e) {} }
+function showCode(show) { $("#codebox").hidden = !show; }
+function codeRejected() {
+  $("#code").value = "";
+  try { localStorage.removeItem("code"); sessionStorage.removeItem("code"); } catch (e) {}
+  showCode(true);
+}
+function failure(r, data, fallback) {
+  var err = new Error(data.error || fallback);
+  err.status = r.status;
+  return err;
+}
 function saveDraft() { try { localStorage.setItem("draft", $("#facts").value); } catch (e) {} }
 
 var ctl = null;
@@ -122,9 +134,11 @@ function liveNotice(data) {
 }
 $("#f").addEventListener("submit", function (e) {
   e.preventDefault();
+  if (ctl) return;
   var facts = $("#facts").value.trim();
+  if (!config.reviewEnabled) { $("#status").textContent = "서버에 ANTHROPIC_API_KEY와 ACCESS_CODE가 설정되지 않아 검토 기능이 꺼져 있습니다."; return; }
   if (facts.length < 20) { $("#status").textContent = "사실관계를 20자 이상 적어 주세요."; return; }
-  if (!codeValue()) { $("#status").textContent = "접근 코드를 입력해 주세요."; $("#code").focus(); return; }
+  if (!codeValue()) { showCode(true); $("#status").textContent = "접근 코드를 입력해 주세요. 처음 한 번만 입력하면 됩니다."; $("#code").focus(); return; }
   saveCode();
   ctl = new AbortController();
   setBusy(true);
@@ -134,18 +148,26 @@ $("#f").addEventListener("submit", function (e) {
     body: JSON.stringify({ facts: facts, tax: $("#tax").value, stage: $("#stage").value, question: $("#q").value.trim() }),
   }).then(function (r) {
     return r.json().catch(function () { return { error: "서버 응답을 읽지 못했습니다. 다시 시도해 주세요." }; }).then(function (data) {
-      if (!r.ok) throw new Error(data.error || "검토에 실패했습니다.");
+      if (!r.ok) throw failure(r, data, "검토에 실패했습니다.");
       return data;
     });
   }).then(function (data) {
+    showCode(false);
     register(data.live || []);
     var degraded = data.libraryDegraded ? '<p class="info warn-box">저장소에 연결하지 못해 관리자가 바꾼 근거 자료를 반영하지 못하고 내장 자료로 검토했습니다.</p>' : "";
     renderResult(data.result, degraded + liveNotice(data));
     $("#status").textContent = "검토를 마쳤습니다. 표시된 근거의 원문을 확인하세요.";
     $("#out").scrollIntoView({ block: "start" });
   }).catch(function (err) {
+    if (err.status === 401) { codeRejected(); $("#status").textContent = "접근 코드가 맞지 않습니다. 다시 입력해 주세요."; $("#code").focus(); return; }
     $("#status").textContent = err.name === "AbortError" ? "검토를 중단했습니다." : err.message === "Failed to fetch" ? "서버에 연결하지 못했습니다. 다시 시도해 주세요." : err.message;
-  }).then(function () { setBusy(false); });
+  }).then(function () { ctl = null; setBusy(false); });
+});
+/* 사실관계 입력칸에서 Enter는 검토 시작, Shift+Enter는 줄바꿈. 한글 조합 중의 Enter는 건드리지 않는다. */
+$("#facts").addEventListener("keydown", function (e) {
+  if (e.key !== "Enter" || e.shiftKey || e.isComposing || e.keyCode === 229) return;
+  e.preventDefault();
+  if ($("#f").requestSubmit) $("#f").requestSubmit(); else $("#run").click();
 });
 $("#stop").addEventListener("click", function () { if (ctl) ctl.abort(); });
 $("#clear").addEventListener("click", function () { $("#facts").value = ""; $("#q").value = ""; saveDraft(); $("#facts").focus(); });
@@ -175,17 +197,21 @@ $("#sf").addEventListener("submit", function (e) {
   e.preventDefault();
   var q = $("#sq").value.trim();
   if (q.length < 2) { $("#sstatus").textContent = "검색어를 2자 이상 적어 주세요."; return; }
-  if (!codeValue()) { $("#sstatus").textContent = "사실관계 검토 화면에서 접근 코드를 먼저 입력해 주세요."; return; }
+  if (!codeValue()) { showCode(true); $("#sstatus").textContent = "사실관계 검토 화면에서 접근 코드를 한 번 입력해 주세요."; return; }
   saveCode();
   $("#sb").disabled = true;
   $("#sstatus").textContent = "검색하고 있습니다.";
   fetch("/api/search", { method: "POST", headers: headers(), body: JSON.stringify({ query: q, kind: $("#sk").value }) }).then(function (r) {
-    return r.json().then(function (d) { if (!r.ok) throw new Error(d.error || "검색에 실패했습니다."); return d; });
+    return r.json().then(function (d) { if (!r.ok) throw failure(r, d, "검색에 실패했습니다."); return d; });
   }).then(function (d) {
+    showCode(false);
     register(d.items);
     $("#scards").innerHTML = d.items.map(card).join("");
     $("#sstatus").textContent = d.items.length ? d.items.length + "건을 찾았습니다." : "검색 결과가 없습니다. 검색어를 바꿔 보세요.";
-  }).catch(function (err) { $("#sstatus").textContent = err.message; }).then(function () { $("#sb").disabled = !config.liveEnabled; });
+  }).catch(function (err) {
+    if (err.status === 401) { codeRejected(); $("#sstatus").textContent = "접근 코드가 맞지 않습니다. 사실관계 검토 화면에서 다시 입력해 주세요."; return; }
+    $("#sstatus").textContent = err.message;
+  }).then(function () { $("#sb").disabled = !config.liveEnabled; });
 });
 
 var CASES = window.TAX_CASES || [];
@@ -236,7 +262,8 @@ route();
 renderCases();
 
 var draft = null;
-try { draft = localStorage.getItem("draft"); $("#code").value = sessionStorage.getItem("code") || ""; } catch (e) {}
+try { draft = localStorage.getItem("draft"); $("#code").value = localStorage.getItem("code") || sessionStorage.getItem("code") || ""; } catch (e) {}
+showCode(!codeValue());
 $("#facts").value = draft || window.TAX_EXAMPLE.facts;
 if (!draft) {
   $("#q").value = "과세예고에 어떻게 대응해야 하나요?";
